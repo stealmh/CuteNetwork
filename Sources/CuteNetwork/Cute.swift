@@ -133,6 +133,6 @@ fileprivate extension Cute {
     
     func addHeaders(_ headers: HTTPHeaders?, request: inout URLRequest) {
         guard let headers = headers else { return }
-        headers.forEach { request.setValue($0, forHTTPHeaderField: $1) }
+        headers.forEach { request.setValue($1, forHTTPHeaderField: $0) }
     }
 }
