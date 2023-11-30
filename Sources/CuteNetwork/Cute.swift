@@ -32,13 +32,25 @@ class Cute<EndPoint: EndPointType>: NSObject, NetworkRouter, URLSessionDelegate 
         return try await withCheckedThrowingContinuation({ value in
             petit(root, logAccess: petitLogVisible) { data, response, error in
                 if let error {
-                    value.resume(throwing: error)
-                } else if let data {
-                    value.resume(returning: data)
-                } else {
-                    value.resume(throwing: NetworkError.noData)
+                    value.resume(throwing: error as? NetworkError ?? NetworkError.custom(message: error.localizedDescription))
                 }
                 
+                if let response = response as? HTTPURLResponse {
+                    let result = ResponseHandler.handleNetworkResponse(response)
+                    switch result {
+                    case .success:
+                        guard let data else {
+                            value.resume(throwing: NetworkError.custom(message: "데이터를 받지 못했습니다."))
+                            return
+                        }
+                        value.resume(returning: data)
+                    case .failure(let message):
+                        guard let _ = data else {
+                            value.resume(throwing: NetworkError.custom(message: message))
+                            return
+                        }
+                    }
+                }
             }
         })
     }
