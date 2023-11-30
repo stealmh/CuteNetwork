@@ -18,7 +18,7 @@ public enum NetworkError: Error {
     case paging
     case custom(message: String)
     
-    var errorMessage: String {
+    public var errorMessage: String {
         switch self {
         case .parametersNil:
             return "파라미터가 nil 입니다."

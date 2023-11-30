@@ -7,7 +7,7 @@
 
 import Foundation
 
-class ResponseHandler {
+open class ResponseHandler {
     
     enum NetworkResponse: String {
         case success

@@ -10,7 +10,7 @@ import Foundation
 public typealias Parameters = [String: Any]
 public typealias HTTPHeaders = [String: String]
 /// EndPointType
-protocol EndPointType {
+public protocol EndPointType {
     var baseURL: URL { get }
     var path: String { get }
     var httpMethod: HTTPMethod { get }

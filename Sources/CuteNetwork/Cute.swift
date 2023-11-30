@@ -7,11 +7,11 @@
 
 import Foundation
 
-class Cute<EndPoint: EndPointType>: NSObject, NetworkRouter, URLSessionDelegate {
+open class Cute<EndPoint: EndPointType>: NSObject, NetworkRouter, URLSessionDelegate {
     /// Properties
     private var task: URLSessionTask?
     /// petit(_ root: EndPoint, petitLogVisible: Bool) async throws -> Data 함수를 통해 받은 Data를 파싱해주는 함수입니다.
-    func petit<T: Decodable>(_ root: EndPoint, petitLogVisible: Bool = true) async throws -> T {
+    open func petit<T: Decodable>(_ root: EndPoint, petitLogVisible: Bool = true) async throws -> T {
         do {
             let result = try await petit(root, petitLogVisible: petitLogVisible)
             
@@ -28,7 +28,7 @@ class Cute<EndPoint: EndPointType>: NSObject, NetworkRouter, URLSessionDelegate 
     }
     /// petit(_ route: EndPoint, logAccess: Bool, completion: @escaping NetworkRouterCompletion)를 받아
     /// 에러, 데이터를 넘겨주는 함수, 정상일 경우 Data를 반환합니다.
-    func petit(_ root: EndPoint, petitLogVisible: Bool) async throws -> Data {
+    open func petit(_ root: EndPoint, petitLogVisible: Bool) async throws -> Data {
         return try await withCheckedThrowingContinuation({ value in
             petit(root, logAccess: petitLogVisible) { data, response, error in
                 if let error {
@@ -55,7 +55,7 @@ class Cute<EndPoint: EndPointType>: NSObject, NetworkRouter, URLSessionDelegate 
         })
     }
     /// dataTask를 걸친 데이터 까지 넘겨주는 역할
-    func petit(_ route: EndPoint, logAccess: Bool, completion: @escaping NetworkRouterCompletion) {
+    open func petit(_ route: EndPoint, logAccess: Bool, completion: @escaping NetworkRouterCompletion) {
         guard Reachability.isConnectedToNetwork() else {
             completion(nil, nil, NetworkError.noConnectionToInternet)
             return
@@ -78,7 +78,7 @@ class Cute<EndPoint: EndPointType>: NSObject, NetworkRouter, URLSessionDelegate 
         self.task?.resume()
     }
     
-    func cancel() {
+    open func cancel() {
         self.task?.cancel()
     }
 }
