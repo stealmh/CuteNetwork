@@ -11,14 +11,19 @@ class Cute<EndPoint: EndPointType>: NSObject, NetworkRouter, URLSessionDelegate 
     /// Properties
     private var task: URLSessionTask?
     /// petit(_ root: EndPoint, petitLogVisible: Bool) async throws -> Data 함수를 통해 받은 Data를 파싱해주는 함수입니다.
-    func petit<T: Decodable>(_ root: EndPoint, petitLogVisible: Bool = true) async throws -> T{
-        let result = try await petit(root, petitLogVisible: petitLogVisible)
+    func petit<T: Decodable>(_ root: EndPoint, petitLogVisible: Bool = true) async throws -> T {
         do {
+            let result = try await petit(root, petitLogVisible: petitLogVisible)
+            
             let decoder = JSONDecoder()
             let data = try decoder.decode(T.self, from: result)
+            
             return data
         } catch {
-            throw NetworkError.parsingError
+            /// [1] `result` error handling
+            if let networkError = error as? NetworkError { throw networkError }
+            /// [2] `Decode fail` error handling
+            else { throw NetworkError.parsingError }
         }
     }
     /// petit(_ route: EndPoint, logAccess: Bool, completion: @escaping NetworkRouterCompletion)를 받아
