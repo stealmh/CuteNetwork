@@ -31,7 +31,6 @@ final class CuteNetworkTests: XCTestCase {
         
         let cute = Cute<MockEndpoint>()
         do {
-            let a = try await cute.petit(.test, petitLogVisible: false)
 //            XCTAssertNotEqual(a, Data())
         } catch {
             print("error: \(error)")

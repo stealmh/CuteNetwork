@@ -7,7 +7,7 @@
 
 import Foundation
 
-class NetworkLogger {
+open class NetworkLogger {
     
     static func log(request: URLRequest) {
         
@@ -17,7 +17,6 @@ class NetworkLogger {
         let method = request.httpMethod != nil ? "\(request.httpMethod ?? "")" : ""
         let path = "\(urlComponents?.path ?? "")"
         let query = "\(urlComponents?.query ?? "")"
-        let host = "\(urlComponents?.host ?? "")"
         
         var bodyLog: String = ""
 
