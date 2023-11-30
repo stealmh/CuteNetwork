@@ -35,7 +35,7 @@ public enum ParameterEncoding {
                 
             case .formEncoding:
                 guard let bodyParameters = bodyParameters else { return }
-                try FORMParameterEncoder().encode(urlRequest: &urlRequest, with: bodyParameters)
+                try FormParameterEncoder().encode(urlRequest: &urlRequest, with: bodyParameters)
             }
         } catch {
             throw error

@@ -1,5 +1,5 @@
 //
-//  FORMParameterEncoder.swift
+//  FormarameterEncoder.swift
 //  
 //
 //  Created by mino on 2023/11/29.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FORMParameterEncoder: ParameterEncoder {
+public struct FormParameterEncoder: ParameterEncoder {
     public func encode(urlRequest: inout URLRequest, with parameters: Parameters) throws {
         var parameterArray = [String]()
         for param in parameters {
