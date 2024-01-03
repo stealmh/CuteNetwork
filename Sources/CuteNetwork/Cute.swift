@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 open class Cute<EndPoint: EndPointType>: NSObject, NetworkRouter, URLSessionDelegate {
     /// Properties
