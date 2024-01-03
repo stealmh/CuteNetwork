@@ -1,10 +1,10 @@
-# CuteNetwork 1.1.2
+# CuteNetwork 1.2.0
 CuteNetwork is networking code built on top of urlSession. <br>
 If you've ever used Moya, which wraps Alamofire, we were inspired by that library. Try out the cute little request 🐣. <br>
 
 ### Swift Package Manager
 ```
-.package(url: "https://github.com/stealmh/CuteNetwork.git", .upToNextMajor(from: "1.1.2"))
+.package(url: "https://github.com/stealmh/CuteNetwork.git", .upToNextMajor(from: "1.2.0"))
 ```
 ## Usage
 First, we need to create an enumeration:
@@ -64,6 +64,9 @@ enum WhatIsEndPoint: EndPointType {
                                             bodyEncoding: ParameterEncoding,
                                             urlParameters: Parameters?,
                                             additionHeaders: HTTPHeaders?)
+
+        // This case is available when uploading images.
+        return .upload
     }
     
     var headers: HTTPHeaders? {
