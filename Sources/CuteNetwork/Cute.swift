@@ -85,7 +85,7 @@ open class Cute<EndPoint: EndPointType>: NSObject, NetworkRouter, URLSessionDele
 //MARK: - Cute + Upload
 extension Cute {
     /// - petitUpload(_ root: EndPoint, image: UIImage, fileName: String, imageType: String, petitLogVisible: Bool) async throws -> Data 함수를 래핑
-    open func petitUpload<T: Decodable>(_ root: EndPoint, imageType: ImageInfomation, petitLogVisible: Bool = true) async throws -> T {
+    open func petitUpload<T: Decodable>(_ root: EndPoint, imageType: ImageInformation, petitLogVisible: Bool = true) async throws -> T {
         do {
             let result = try await petitUpload(root,
                                                imageType: imageType,
@@ -103,7 +103,7 @@ extension Cute {
         }
     }
     /// - petitUpload(_ route: EndPoint, image: UIImage, fileName: String, imageType: String, logAccess: Bool, completion: @escaping NetworkRouterCompletion) 함수를 래핑
-    open func petitUpload(_ root: EndPoint, imageType: ImageInfomation, petitLogVisible: Bool) async throws -> Data {
+    open func petitUpload(_ root: EndPoint, imageType: ImageInformation, petitLogVisible: Bool) async throws -> Data {
         return try await withCheckedThrowingContinuation({ value in
             petitUpload(root,
                         imageType: imageType,
@@ -132,7 +132,7 @@ extension Cute {
         })
     }
     /// dataTask를 걸친 데이터 까지 넘겨주는 역할
-    open func petitUpload(_ route: EndPoint, imageType: ImageInfomation, logAccess: Bool, completion: @escaping NetworkRouterCompletion) {
+    open func petitUpload(_ route: EndPoint, imageType: ImageInformation, logAccess: Bool, completion: @escaping NetworkRouterCompletion) {
         guard Reachability.isConnectedToNetwork() else {
             completion(nil, nil, NetworkError.noConnectionToInternet)
             return
@@ -176,7 +176,7 @@ extension Cute {
         return request
     }
     
-    fileprivate func createMultipartBody(_ boundary: String, _ imageType: ImageInfomation) -> Data {
+    fileprivate func createMultipartBody(_ boundary: String, _ imageType: ImageInformation) -> Data {
         let boundaryPrefix = "--\(boundary)\r\n"
         var uploadData = Data()
         if let data = imageType.image.jpegData(compressionQuality: 0.8) {
