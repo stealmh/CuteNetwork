@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 open class Cute<EndPoint: EndPointType>: NSObject, NetworkRouter, URLSessionDelegate {
     /// Properties
@@ -150,7 +149,7 @@ extension Cute {
         do {
             let boundary = "Boundary-\(UUID().uuidString)"
             let request = try self.buildRequest(from: route, boundary: boundary)
-            let multipartBody = createMultipartBody(boundary, imageType.image, imageType.imageName, imageType.imageType)
+            let multipartBody = createMultipartBody(boundary, imageType)
             if logAccess { NetworkLogger.log(request: request) }
             
             task = session.uploadTask(with: request, from: multipartBody, completionHandler: { data, response, error in
@@ -177,13 +176,13 @@ extension Cute {
         return request
     }
     
-    fileprivate func createMultipartBody(_ boundary: String, _ image: UIImage, _ fileName: String, _ imageType: String) -> Data {
+    fileprivate func createMultipartBody(_ boundary: String, _ imageType: ImageInfomation) -> Data {
         let boundaryPrefix = "--\(boundary)\r\n"
         var uploadData = Data()
-        if let data = image.jpegData(compressionQuality: 0.8) {
+        if let data = imageType.image.jpegData(compressionQuality: 0.8) {
             uploadData.append(boundaryPrefix.data(using: .utf8)!)
-            uploadData.append("Content-Disposition: form-data; name=\"img\"; filename=\"\(fileName).\(imageType)\"\r\n".data(using: .utf8)!)
-            uploadData.append("Content-Type: image/\(imageType)\r\n\r\n".data(using: .utf8)!)
+            uploadData.append("Content-Disposition: form-data; name=\"img\"; filename=\"\(imageType.imageName).\(imageType)\"\r\n".data(using: .utf8)!)
+            uploadData.append("Content-Type: image/\(imageType.imageType)\r\n\r\n".data(using: .utf8)!)
             uploadData.append(data)
             uploadData.append("\r\n".data(using: .utf8)!)
             uploadData.append("--\(boundary)--".data(using: .utf8)!)
