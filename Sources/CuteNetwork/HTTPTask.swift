@@ -16,4 +16,5 @@ public enum HTTPTask {
         bodyEncoding: ParameterEncoding,
         urlParameters: Parameters?,
         additionHeaders: HTTPHeaders?)
+    case upload
 }
