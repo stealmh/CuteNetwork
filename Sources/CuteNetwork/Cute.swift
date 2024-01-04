@@ -181,8 +181,8 @@ extension Cute {
         var uploadData = Data()
         if let data = imageType.image.jpegData(compressionQuality: 0.8) {
             uploadData.append(boundaryPrefix.data(using: .utf8)!)
-            uploadData.append("Content-Disposition: form-data; name=\"img\"; filename=\"\(imageType.imageName).\(imageType)\"\r\n".data(using: .utf8)!)
-            uploadData.append("Content-Type: image/\(imageType.imageType)\r\n\r\n".data(using: .utf8)!)
+            uploadData.append("Content-Disposition: form-data; name=\"\(imageType.fieldName)\"; filename=\"\(imageType.fileName)\"\r\n".data(using: .utf8)!)
+            uploadData.append("Content-Type: \(imageType.mimeType)\r\n\r\n".data(using: .utf8)!)
             uploadData.append(data)
             uploadData.append("\r\n".data(using: .utf8)!)
             uploadData.append("--\(boundary)--".data(using: .utf8)!)
