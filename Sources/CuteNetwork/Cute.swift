@@ -85,10 +85,18 @@ open class Cute<EndPoint: EndPointType>: NSObject, NetworkRouter, URLSessionDele
 //MARK: - Cute + Upload
 extension Cute {
     /// - petitUpload(_ root: EndPoint, image: UIImage, fileName: String, imageType: String, petitLogVisible: Bool) async throws -> Data 함수를 래핑
-    open func petitUpload<T: Decodable>(_ root: EndPoint, imageType: ImageInformation, petitLogVisible: Bool = true) async throws -> T {
+    open func petitUpload<T: Decodable>(_ root: EndPoint,
+                                        imageMultiPart: ImageInformation? = nil,
+                                        videoMultiPart: VideoInformation? = nil,
+                                        petitLogVisible: Bool = true) async throws -> T {
+        guard imageMultiPart != nil || videoMultiPart != nil else {
+            throw NetworkError.custom(message: "잘못된 접근")
+        }
+        
         do {
             let result = try await petitUpload(root,
-                                               imageType: imageType,
+                                               imageMultiPart: imageMultiPart,
+                                               videoMultiPart: videoMultiPart,
                                                petitLogVisible: petitLogVisible)
             
             let decoder = JSONDecoder()
@@ -103,10 +111,19 @@ extension Cute {
         }
     }
     /// - petitUpload(_ route: EndPoint, image: UIImage, fileName: String, imageType: String, logAccess: Bool, completion: @escaping NetworkRouterCompletion) 함수를 래핑
-    open func petitUpload(_ root: EndPoint, imageType: ImageInformation, petitLogVisible: Bool) async throws -> Data {
+    open func petitUpload(_ root: EndPoint,
+                          imageMultiPart: ImageInformation? = nil,
+                          videoMultiPart: VideoInformation? = nil,
+                          petitLogVisible: Bool) async throws -> Data {
+        guard imageMultiPart != nil || videoMultiPart != nil else {
+            throw NetworkError.custom(message: "잘못된 접근")
+        }
+        
+        
         return try await withCheckedThrowingContinuation({ value in
             petitUpload(root,
-                        imageType: imageType,
+                        imageMultiPart: imageMultiPart,
+                        videoMultiPart: videoMultiPart,
                         logAccess: petitLogVisible) { data, response, error in
                 if let error {
                     value.resume(throwing: error as? NetworkError ?? NetworkError.custom(message: error.localizedDescription))
@@ -132,7 +149,17 @@ extension Cute {
         })
     }
     /// dataTask를 걸친 데이터 까지 넘겨주는 역할
-    open func petitUpload(_ route: EndPoint, imageType: ImageInformation, logAccess: Bool, completion: @escaping NetworkRouterCompletion) {
+    open func petitUpload(_ route: EndPoint,
+                          imageMultiPart: ImageInformation? = nil,
+                          videoMultiPart: VideoInformation? = nil,
+                          logAccess: Bool,
+                          completion: @escaping NetworkRouterCompletion) {
+        
+        guard imageMultiPart != nil || videoMultiPart != nil else {
+            completion(nil, nil, NetworkError.custom(message: "잘못된 접근"))
+            return
+        }
+        
         guard Reachability.isConnectedToNetwork() else {
             completion(nil, nil, NetworkError.noConnectionToInternet)
             return
@@ -149,10 +176,19 @@ extension Cute {
         do {
             let boundary = "Boundary-\(UUID().uuidString)"
             let request = try self.buildRequest(from: route, boundary: boundary)
-            let multipartBody = createMultipartBody(boundary, imageType)
+            let multipartBody: Data?
+            if let imageMultiPart {
+                multipartBody = createMultipartBody(boundary, imageMultiPart)
+            } else {
+                print("요기")
+                multipartBody = createMultipartBody(boundary, videoMultiPart!)
+            }
             if logAccess { NetworkLogger.log(request: request) }
             
-            task = session.uploadTask(with: request, from: multipartBody, completionHandler: { data, response, error in
+            task = session.uploadTask(with: request, from: multipartBody!, completionHandler: { data, response, error in
+                print(String(data: data!, encoding: .utf8))
+                print(response)
+                print(error)
                 completion(data, response, error)
             })
             
@@ -181,12 +217,27 @@ extension Cute {
         var uploadData = Data()
         if let data = imageType.image.jpegData(compressionQuality: 0.8) {
             uploadData.append(boundaryPrefix.data(using: .utf8)!)
-            uploadData.append("Content-Disposition: form-data; name=\"img\"; filename=\"\(imageType.imageName).\(imageType)\"\r\n".data(using: .utf8)!)
-            uploadData.append("Content-Type: image/\(imageType.imageType)\r\n\r\n".data(using: .utf8)!)
+            uploadData.append("Content-Disposition: form-data; name=\"\(imageType.fieldName)\"; filename=\"\(imageType.fileName)\"\r\n".data(using: .utf8)!)
+            uploadData.append("Content-Type: \(imageType.mimeType)\r\n\r\n".data(using: .utf8)!)
             uploadData.append(data)
             uploadData.append("\r\n".data(using: .utf8)!)
             uploadData.append("--\(boundary)--".data(using: .utf8)!)
-        } // adjust compression quality as needed
+        }
+        return uploadData
+    }
+    
+    fileprivate func createMultipartBody(_ boundary: String, _ videoMultiPart: VideoInformation) -> Data {
+        print(#function)
+        let boundaryPrefix = "--\(boundary)\r\n"
+        var uploadData = Data()
+        if let data = try? Data(contentsOf: videoMultiPart.videoURL) {
+            uploadData.append(boundaryPrefix.data(using: .utf8)!)
+            uploadData.append("Content-Disposition: form-data; name=\"\(videoMultiPart.fieldName)\"; filename=\"\(videoMultiPart.fileName)\"\r\n".data(using: .utf8)!)
+            uploadData.append("Content-Type: \(videoMultiPart.mimeType)\r\n\r\n".data(using: .utf8)!)
+            uploadData.append(data)
+            uploadData.append("\r\n".data(using: .utf8)!)
+            uploadData.append("--\(boundary)--".data(using: .utf8)!)
+        }
         return uploadData
     }
     
